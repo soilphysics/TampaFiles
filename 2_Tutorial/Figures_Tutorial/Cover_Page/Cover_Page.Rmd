@@ -1,0 +1,44 @@
+---
+output:
+  pdf_document: default
+  geometry: margin=1in
+  html_document: default
+  fontsize: 11pt
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+\pagenumbering{gobble}
+
+\begin{center}
+
+\vspace*{12.5mm}
+\LARGE{\textbf{R You Ready for New Tools to Manage Research Resources?}}
+
+\vspace{25mm}
+\Large{ASA-CSA-SSSA Annual International Meeting}
+
+\Large{October 22, 2017 Tampa, FL}
+
+\vspace{2.5mm}
+\includegraphics[width=0.85\textwidth]{../csa_asa_sssa_logos.png}
+
+\vspace{25mm}
+\Large{\textit{A. M. Poncet, T. Knappenberger}}
+
+\Large{Auburn University}
+
+\vspace{2.5mm}
+\includegraphics[width=0.3\textwidth]{../AU.png}
+
+\vspace{7.5mm}
+\Large{\textit{E. Van Santen, G. Ben-Chanoch}}
+
+\Large{University of Florida}
+
+\vspace{2.5mm}
+\includegraphics[width=0.3\textwidth]{../UF.png}
+
+\end{center}

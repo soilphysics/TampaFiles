@@ -1,0 +1,453 @@
+---
+bibliography: Bibliography.bib
+output:
+  html_document:
+    fig_caption: no
+    geometry: margin=1in
+  fontsize: 11pt
+  pdf_document:
+    fig_caption: no
+  word_document:
+    fig_caption: no
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, fig.align = 'center')
+```
+
+```{r echo=FALSE, results='hide', message=FALSE, warning=FALSE}
+library(knitr)
+```
+
+\pagenumbering{gobble} 
+
+```{r out.width = "100%", echo=FALSE}
+include_graphics("Figures_Tutorial/Cover_Page/Cover_Page.png") 
+```
+
+\pagenumbering{arabic} 
+
+# Preamble
+
+Reproducibility is one of the most fundamental cornerstones of science. Research results are typically considered `replicable` if there is sufficient information available for independent researchers to obtain the same findings using the same methods with new data. Working to make your research reproducible surely requires extra upfront effort but beyond the direct benefit to science, succeeding can also benefit you personally by making your research process more effective and easier [@Gandrud2015; @Xie2015]. 
+
+\vspace{2.5mm}
+
+Cutting-edge statistical analysis often requires tools not yet available in commercial software-packages and the open-source programming language and development environment R has gained increased acceptance within the research community as it provides one solution to these problems. In this workshop you will learn how to use RStudio and R Markdown as one tool integrating data storage, analysis, graphing, and manuscript writing. You will first learn how to create your own R-package to store data, code, and share your research with other people. You will then learn how to use R Markdown to integrate data analysis, graphing, and manuscript writing. 
+
+\vspace{2.5mm}
+
+To be able to complete this workshop, participants are required to install all the R-packages listed below. Windows users must also install the latest version of the RTool application. 
+
+  * htmltools [@htmltools],
+  * caTools[@caTools],
+  * bitops [@bitops],
+  * base64enc [@base64enc],
+  * rmarkdown [@rmarkdown],
+  * devtools [@devtools],
+  * roxygen2 [@roxygen2],
+  * knitr [@Xie2015], and
+  * ggplot2 [@ggplot2].
+  * plyr [@plyr]
+  
+\vspace{2.5mm}
+You can do so using the following script.
+\vspace{1.5mm}
+
+```{r eval=FALSE}
+#"This script installs R packages required to complete the Workshop Tutorial"
+
+# lists all packages already installed
+packages.list <- rownames(as.data.frame(installed.packages()))
+
+# lists all packages that must be installed
+packages.required <- c("htmltools", "caTools", "bitops", "base64enc", "rmarkdown", 
+                       "devtools", "roxygen2", "knitr", "ggplot2", "plyr")
+
+# install missing packages
+for(package in packages.required){ # iteration over required packages
+  if(package %in% packages.list == F){ # if package has not been installed yet
+    install.packages(package)
+  }
+}
+```
+
+\pagebreak
+
+# Section 1. Creating an R-Package
+
+Are you looking for an efficient way to store your data, metadata, and code to share your research with others or simply to make it easier on yourself? Stop looking, the solution is simple: you need to create your own R-package! The simplest way to create an R-package is to use the `devtools` and `roxygen2` packages and this first section will get you started with creating you own R-packages using these two libraries. You will be guided through a step by step tutorial. The following topics will be covered: including and documenting datasets as well as functions within an R-package, file structure, and exporting the package in a format that you can share with other users
+
+## 1. Create a New Project.
+    
+a. Click on `Project: (None)`, and select `New Project`.  
+
+```{r out.width = "90%", echo=FALSE}
+include_graphics("Figures_Tutorial/Part1/Part1_ImgA1.png") 
+```
+
+b. Select `New Directory`.  
+
+```{r out.width = "55%", echo=FALSE}
+include_graphics("Figures_Tutorial/Part1/Part1_ImgA2.png") 
+```
+
+c. Select `R Package`.
+
+```{r out.width = "47.5%", echo=FALSE}
+include_graphics("Figures_Tutorial/Part1/Part1_ImgA3.png") 
+```
+
+d. Name your package, select the directory in which your project/package will be located, and click on `Create Project`.
+
+```{r out.width = "47.5%", echo=FALSE}
+include_graphics("Figures_Tutorial/Part1/Part1_ImgA4.png") 
+```
+
+e. You should obtain the following screen.
+
+```{r out.width = "80%", echo=FALSE}
+include_graphics("Figures_Tutorial/Part1/Part1_ImgA5.png") 
+```
+
+
+f. In the main drop-down menu click on `Build` and  select `Configure Build Tools`.
+
+```{r out.width = "75%", echo=FALSE}
+include_graphics("Figures_Tutorial/Part1/Part1_ImgA6.png") 
+```
+
+
+g. In the `Build Tools` Tab, check the option `Generate documentation with Roxygen`. If this was already checked, click on `Configure`.
+
+```{r out.width = "55%", echo=FALSE}
+include_graphics("Figures_Tutorial/Part1/Part1_ImgA7.png") 
+```
+
+
+h. In the `Roxygen Options` window, check all options and click `OK`. Click `OK` again to exit the `Project Options` window. 
+
+```{r out.width = "37.5%", echo=FALSE}
+include_graphics("Figures_Tutorial/Part1/Part1_ImgA8.png") 
+```
+
+
+## 2. Complete the DESCRIPTION File.
+
+a. Open the DESCRIPTION file from the file window in RStudio.
+
+```{r out.width = "91%", echo=FALSE}
+include_graphics("Figures_Tutorial/Part1/Part1_ImgB1.png") 
+```
+
+b. Edit the file and click on `Build & Reload` or `Install & Restart` depending on which R and RStudio versions are installed on your computer.
+
+```{r out.width = "91%", echo=FALSE}
+include_graphics("Figures_Tutorial/Part1/Part1_ImgB2.png") 
+```
+
+c. After clicking on `Build & Reload` (or `Install & Restart`), your package has been loaded to the `Packages` tab. 
+
+
+```{r out.width = "91%", echo=FALSE}
+include_graphics("Figures_Tutorial/Part1/Part1_ImgB3.png") 
+```
+
+d. Click on your package within the help screen to access its information. 
+
+```{r out.width = "91%", echo=FALSE}
+include_graphics("Figures_Tutorial/Part1/Part1_ImgB4.png") 
+```
+
+## 3. Add and Document a Dataset.
+
+a. Save the original data files (here .csv files) within a `Source` folder located outside of the `TampaWorkshop` package folder.
+
+```{r out.width = "45%", echo=FALSE}
+include_graphics("Figures_Tutorial/Part1/Part1_ImgC0.png") 
+```
+
+b. Data within a R-package must be stored within a `data` folder. Hence, within the `TampaWorkshop` folder create a new folder named `data`.
+
+\vspace{3.5mm}
+
+```{r out.width = "82.5%", echo=FALSE}
+include_graphics("Figures_Tutorial/Part1/Part1_ImgC1.png") 
+```
+
+c. Import your data into RStudio. Save data as `.rda` into the data folder created step 3b. Save the script created to import the data within the `Source` package created step 3a. 
+
+```{r out.width = "91.5%", echo=FALSE}
+include_graphics("Figures_Tutorial/Part1/Part1_ImgC2.png") 
+```
+
+\pagebreak
+
+d. Document the dataset. Start a new script and save within the package R folder. Metadata with `roxygen2` are added following  `#'` (pound plus single quote). The first line must state the title of the dataset. The line below remains blank. The third line provides a short description of the dataset. Dataset individual columns are defined using `\\itemize` and `\\item`. The name of the dataset and how the dataset is imported in R are defined using respectively `\@name` and `\@usage`. `\@export` is required to ensure that the dataset will be available after exportation.  
+
+```{r out.width = "92.5%", echo=FALSE}
+include_graphics("Figures_Tutorial/Part1/Part1_ImgC3.png") 
+```
+
+\vspace{3.5mm}
+
+e. Click on `Build \& Reload` - or `Install & Restart` - to update your package in the `Packages` tab. Use `?dataset.name` (here `?corn.yield`) to see the dataset medata in the help screen.
+
+```{r out.width = "100%", echo=FALSE}
+include_graphics("Figures_Tutorial/Part1/Part1_ImgC4.png") 
+```
+
+## 4. Add and Document a Function.
+
+a. Create a new script and save into the `TampaWorkshop` package R folder. Write your function.
+
+```{r out.width = "97.5%", echo=FALSE}
+include_graphics("Figures_Tutorial/Part1/Part1_ImgD1.png") 
+```
+
+b. Add meta data to the function. As we have seen before, metadata are specified following `#'`. The first line must state the title of the function. The line below remains blank. The third line provides a short description of the function.The function parameters and output are defined using `\@param` and `\@return`. Examples are provided below `\@example`.`\@export` is required to ensure that the dataset will be available after exportation.
+
+```{r out.width = "100%", echo=FALSE}
+include_graphics("Figures_Tutorial/Part1/Part1_ImgD2.png") 
+```
+
+\pagebreak
+
+
+c. Click on `Build \& Reload` - or `Install & Restart` - to update your package in the `Packages` tab. Use `?FunctionName` (here `YieldConversion`) to see the function medata in the help screen.
+
+```{r out.width = "87.5%", echo=FALSE}
+include_graphics("Figures_Tutorial/Part1/Part1_ImgD3.png") 
+```
+
+
+## 5. Document and Build the Package.
+
+a. In console, import `devtools` and execute `use_package_doc()`. This creates a new file in the package R directory.
+
+```{r out.width = "87.5%", echo=FALSE}
+include_graphics("Figures_Tutorial/Part1/Part1_ImgE1.png") 
+```
+
+b. You can edit the created file to document the package as a whole. Click on `Build \& Reload` - or `Install & Restart` - to update your package in the `Packages` tab. Use `?PackageName` (here ?TampaWorkshop) to see the package medata in the help screen.
+
+```{r out.width = "90%", echo=FALSE}
+include_graphics("Figures_Tutorial/Part1/Part1_ImgE2.png") 
+```
+
+
+c. Once you have included and adequately documented all datasets and functions in your package, you can export your package as follow. In the `Build` tab, click on `More` and select `Build Binary Package`
+
+```{r out.width = "90%", echo=FALSE}
+include_graphics("Figures_Tutorial/Part1/Part1_ImgE3.png") 
+```
+
+d. Your package has now been exported into a .zip package if you are using Windows - or into a .tgz file if you are using Mac - and can be found in the same directory than your original package folder.
+
+
+```{r out.width = "85%", echo=FALSE}
+include_graphics("Figures_Tutorial/Part1/Part1_ImgE4.png") 
+```
+
+\pagebreak
+
+# Section 2. Producing a Manuscript with R Markdown
+
+In this second section you will learn how to use R Markdown to integrate data visualization, data analysis, and manuscript/report writing into a single software application. You will be guided through a step by step tutorial that uses the R-package created in Section 1. 
+
+## 1. Create a New Markdown Document
+
+a. Click on `File` >> `New File` >> `R Markdown` to open a new Markdown document.
+
+```{r out.width = "62.5%", echo=FALSE}
+include_graphics("Figures_Tutorial/Part2/Part2_ImgA1.png") 
+```
+
+b. In the `New R Markdown` window select the type of document you want to create -here `Document`- , specify a title - optional, can be changed later -, the author(s), and an output format - for now select `HTML`. Click ok to continue. 
+
+```{r out.width = "62.5%", echo=FALSE}
+include_graphics("Figures_Tutorial/Part2/Part2_ImgA2.png") 
+```
+
+\pagebreak
+
+c. You obtain the following screen. The first four lines define the title of the document, authors, creation date, and output format. You can generate the `HTML` document by clicking on `Knit` button.
+
+```{r out.width = "90%", echo=FALSE}
+include_graphics("Figures_Tutorial/Part2/Part2_ImgA3.png") 
+```
+
+
+d. You obtain the following result. 
+
+```{r out.width = "90%", echo=FALSE}
+include_graphics("Figures_Tutorial/Part2/Part2_ImgA4.png") 
+```
+
+
+## 2. Write the Manuscript.
+
+a. You can structure the document as presented in the figure below. Use `#` for first level headers and `##` for second level headers.
+
+```{r out.width = "83%", echo=FALSE}
+include_graphics("Figures_Tutorial/Part2/Part2_ImgA5.png") 
+```
+
+b. Leave a blank line to start a new paragraph. Use `\*` and `\*\*` to italicize and bold text, respectively. Use \\ as an escape character. 
+
+```{r out.width = "83%", echo=FALSE}
+include_graphics("Figures_Tutorial/Part2/Part2_ImgA6.png") 
+```
+
+\pagebreak
+c. You can create non-ordered and order lists as presented in the figure below.
+
+```{r out.width = "90%", echo=FALSE}
+include_graphics("Figures_Tutorial/Part2/Part2_ImgA7.png") 
+```
+
+d. You can add figures using `![caption]{Figure Path and Name}`
+
+```{r out.width = "90%", echo=FALSE}
+include_graphics("Figures_Tutorial/Part2/Part2_ImgA8.png") 
+```
+
+\pagebreak
+
+e. You can also add tables as presented in the figure below. Use `\|` to separate columns. Use `-` to separate header from rows below. Use `:`to determine text adjustment within individual columns. Use `:---` to left-justify, `:---: to center, and `---:` to right-justify. 
+
+```{r out.width = "82.5%", echo=FALSE}
+include_graphics("Figures_Tutorial/Part2/Part2_ImgA9.png") 
+```
+
+## 3. Include R Code and Outputs to the Manuscript.
+
+a. To insert R chunks within Markdown, click on `Insert` and select `R`.
+
+```{r out.width = "82.5%", echo=FALSE}
+include_graphics("Figures_Tutorial/Part2/Part2_ImgA10.png")
+```
+
+\pagebreak
+b. You can specify if the code should be displayed, evaluated, and the results displayed within the R document using the `echo = T/F`, `include = T/F`, and `eval = T/F` parameters. 
+
+```{r out.width = "90%", echo=FALSE}
+include_graphics("Figures_Tutorial/Part2/Part2_ImgA11.png")
+```
+
+c. You can then type your code as you would in a R script.
+
+```{r out.width = "90%", echo=FALSE}
+include_graphics("Figures_Tutorial/Part2/Part2_ImgA12.png")
+```
+
+\vspace*{2.5mm}
+d. It is also possible to inline some R code using `\`\r (R code here)\`` ...
+
+```{r out.width = "100%", echo=FALSE}
+include_graphics("Figures_Tutorial/Part2/Part2_ImgA13.png")
+```
+
+\vspace{5mm}
+e. ... and insert graphics to the knitted document. 
+
+\vspace{2.5mm}
+```{r out.width = "100%", echo=FALSE}
+include_graphics("Figures_Tutorial/Part2/Part2_ImgA14.png")
+```
+
+\pagebreak
+
+## 4. Insert References.
+
+a. List your references within a bibtex or biblatex file (.bib)
+
+```{r out.width = "100%", echo=FALSE}
+include_graphics("Figures_Tutorial/Part2/Part2_ImgA15.png")
+```
+
+\vspace{5mm}
+b. Save that file and specify the file name and path within the Markdown file header.
+
+```{r out.width = "100%", echo=FALSE}
+include_graphics("Figures_Tutorial/Part2/Part2_ImgA16.png")
+```
+
+\pagebreak 
+
+c. In-text citation go inside square brackets and are separated by a semicolumn. Each citation must have a key composed of `\@` plus the citation identifier from the database. A minus sign before the `\@` will suppress mention of the author in the citation. This is useful when the author is already mentioned in the text.
+
+```{r out.width = "100%", echo=FALSE}
+include_graphics("Figures_Tutorial/Part2/Part2_ImgA17.png")
+```
+
+d. This provides the following result after knitting the document.
+
+\vspace{5mm}
+In text:
+
+```{r out.width = "100%", echo=FALSE}
+include_graphics("Figures_Tutorial/Part2/Part2_ImgA18.png")
+```
+
+\vspace{5mm}
+References Section:
+
+```{r out.width = "100%", echo=FALSE}
+include_graphics("Figures_Tutorial/Part2/Part2_ImgA19.png")
+```
+
+\pagebreak
+
+# Section 3. Exploring Different Markdown Outlets
+
+Once completed, you can export your Markdown document into different formats including HTML, Word, and PDF (through Latex). To do so, click on the `Knit` button and select the desired outlet. In order to export your Markdown document to PDF you need to have already installed one of Latex distributions.
+
+```{r out.width = "100%", echo=FALSE}
+include_graphics("Figures_Tutorial/Part3/Part3_Img1.png")
+```
+
+\pagebreak
+
+# Section 4. Update R-Package and Manuscript.
+
+This fourth and last section will demonstrate the benefits of using R and R Markdown as an integrated tool for research. You will first be guided to update the dataset included within the R-package created in Section 1. You will then knit again the manuscript produced in Section 2 and compare the outputs. 
+
+## 1. Update the R-Package
+
+a. Update the `corn.yield` dataset by adding the 2017 corn yield data.
+
+```{r out.width = "85%", echo=FALSE}
+include_graphics("Figures_Tutorial/Part4/Part4_Img1.png")
+```
+
+b. Open the `TampaWorkshop` package created in Section 1. Update the information provided in the `dataset.R` file and click on `Build \& Reload` - or `Install & Restart`.
+
+```{r out.width = "100%", echo=FALSE}
+include_graphics("Figures_Tutorial/Part4/Part4_Img2.png")
+```
+
+\pagebreak
+c. In the `Build` tab, click on `More` and select `Build Binary Package`
+
+```{r out.width = "70%", echo=FALSE}
+include_graphics("Figures_Tutorial/Part4/Part4_Img3.png")
+```
+
+d. Make sure the `corn.yield` dataset has been correctly updated.
+
+```{r out.width = "100%", echo=FALSE}
+include_graphics("Figures_Tutorial/Part4/Part4_Img4.png")
+```
+
+## 2. Update Manuscript
+
+Knit the Markdown document created in section 2 and compare with previous version
+
+```{r out.width = "100%", echo=FALSE}
+include_graphics("Figures_Tutorial/Part4/Part4_Img5.png")
+```
+
+\pagebreak
+
+# References

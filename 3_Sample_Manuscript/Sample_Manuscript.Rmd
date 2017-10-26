@@ -1,0 +1,171 @@
+---
+title: "Sample Manuscript using the TampaWorkshop Package"
+author: "A.M. Poncet, T. Knappenberger, E. Van Santen, and G. Ben-Chanoch."
+date: "10/6/2017"
+output:
+  html_document: default
+  pdf_document: default
+  word_document: default
+bibliography: Bibliography.bib
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r echo=FALSE, results='hide', message=FALSE, warning=FALSE}
+library(knitr) # imports the knitr library.
+```
+
+# Abstract
+
+This tutorial was written using the following resources. 
+
+  - Books: [@Gandrud2015; @Xie2015]
+  - Websites: [@PandocUserGuide; @RMarkdown]
+  
+Use minus sign before the *\@* to remove the author from the citation. For instance the authors used Gandrud's [-@Gandrud2015] book as a reference to write this manuscript.
+
+
+# Introduction
+
+Leave a blank line to start a new paragraph. 
+
+*You can italicize text this way.* **You can bold text this way** 
+
+Use \\ as escape character. An escape character is placed in front of characters that have a different meaning for the programming language. For instance, \\ would be used here in front of \\, \*, \%.
+
+# Material and Methods
+
+This is how you insert a figure. 
+
+![Sample Figure (This is a Caption)](Sample_Figure.png)
+
+This is how you include a table into your manuscript.
+
+### Soil Texture by Field (This is a Caption)
+
+Field | \% Clay | \% Silt | \%Loam
+:-----|:-------:|:-------:|:------:
+  F1    | 40      |35       | 25
+F2    | 30      |40       |60
+
+
+## Site Description
+This is the first subsection within Material and Methods.
+
+## Experimental Design
+This is your second subsection within Material and Methods.
+
+## Data Analysis
+This is your third subsection within Material and Methods.
+
+
+# Results and Discussion
+
+```{r include = FALSE, echo = FALSE} 
+
+# import required libraries
+require(TampaWorkshop)  # contains the data we will be working with.
+require(ggplot2) # for plotting
+require(plyr)
+
+# import data from TampaWorkshop package
+data(corn.yield)
+
+# take a look at the data prior to computing data analysis
+summary(corn.yield)
+
+# Convert yield data using the YieldConvertion function and add results as a new column within dataset.
+corn.yield <- within(corn.yield, yield.converted <- YieldConversion(yield))
+
+# Summarize converted yield data
+summary(corn.yield$yield.converted)
+
+# Compute Analysis of Variance using Linear Model
+model <- lm(yield.converted ~ field*cultivar*fertilizer, data=corn.yield)
+summary(model)
+
+# Remove non-signficant three-way interaction effect
+model2 <- update(model, .~ . -field:cultivar:fertilizer)
+anova(model, model2) # P > 0.10, model2 is better
+summary(model2)
+
+# Remove first non-signficant two-way interaction effect
+model3 <- update(model2, .~ . -cultivar:fertilizer)
+anova(model2, model3) # P > 0.10, model3 is better
+summary(model3)
+
+# Remove second non-signficant two-way interaction effect
+model4 <- update(model3, .~ . -field:fertilizer)
+anova(model4, model3) # P > 0.10, model4 is better
+summary(model4)
+
+# all remaining effects are significant. 
+#We cannot further simplify the model.
+
+# extract model p-value
+summary.stat <- summary(model4)$fstatistic
+model.pvalue <- pf(summary.stat[1],summary.stat[2],summary.stat[3],lower.tail=F)
+
+```
+
+Linear model p-value was $`r model.pvalue`$.
+
+```{r echo=FALSE}
+
+# compute average values and standard error by treatment
+corn.yield.summary <- ddply(corn.yield, .(year,cultivar, fertilizer), function(x){
+  mean <- round(mean(x$yield.converted), digits=2)
+  sd <- round(sd(x$yield.converted), digits=1)
+  count <- NROW(x$yield.converted)
+  se <-round(sd/sqrt(count), digits=1)
+  
+  data.frame(mean=mean, se=se)
+})
+
+ggplot(data=corn.yield.summary, aes(x=fertilizer, y=mean, shape=cultivar))+
+  geom_point(size=2)  + scale_shape_manual(values=c(1,16), name="Cultivar")+
+  xlab("Fertilizer") + ylab("Grain Yield [tons/ha]")+
+  ggtitle("Grain Yield Response to Fertilizer and Cultivar")+
+  geom_errorbar(aes(ymin=mean-se, ymax=mean+se), width=0.25)+
+  facet_grid(.~year)
+```
+
+
+
+
+# Conclusions
+
+This is how you create a non-ordered list in markdown.
+
+  * first item in first order list.
+    + First item in second order list below the first item.
+    + Second item in second order list below the first item.
+  * second item in first order list. 
+  
+This is how you create an ordered list in markdown.
+
+  1. first item in first order list.
+    a. First item in second order list below the first item.
+    b. Second item in second order list below the first item.
+  2. second item in first order list. 
+
+Make sure that:
+
+  * You have an empty line between the text and your list.
+  * First order lists are idented with 1 tab or 4 spaces.
+    + Second order lists are indented with 2 tabs ... 
+    + ... or 8 spaces.
+    
+
+# References
+
+
+
+
+
+
+
+
+   
